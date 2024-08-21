@@ -4,10 +4,10 @@ import { Link } from "react-router-dom";
 // resources
 import dinosaurIcon from "../resources/images/dinosaur.png";
 import reactionIcon from "../resources/images/reaction.png"; // Add an icon for the reaction game
-
-// components
+import ColourPuzzle from "../components/ColourPuzzle"
 import Game1 from "../components/Game1";
 
+// components
 const Home = () => {
   return (
       <div className="home">
