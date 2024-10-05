@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import '../styles/DinoJump.css'; // Assuming you add custom styles for the game here
+import '../styles/DinoJump.css';
 
-const Game1 = ({onGameOver}) => {
+const Game1 = ({ onGameOver }) => {
     const [gameOver, setGameOver] = useState(false);
     const [startTime, setStartTime] = useState(Date.now());
     const [gameLength, setGameLength] = useState(null);
 
     useEffect(() => {
-        
+
         const dino = document.getElementById("dino");
         const cactus = document.getElementById("cactus");
-
         const handleKeyDown = (event) => {
             if (!gameOver) {
                 jump();
@@ -23,13 +22,29 @@ const Game1 = ({onGameOver}) => {
             if (dino.classList != "jump") {
                 dino.classList.add("jump");
 
-                setTimeout(function() {
+                setTimeout(function () {
                     dino.classList.remove("jump");
                 }, 300);
             }
         }
 
-        let isAlive = setInterval(function() {
+
+        // Function to handle cactus animation reset with random speed
+        const randomizeCactusAnimation = () => {
+            cactus.classList.remove("run-animation");
+            void cactus.offsetWidth; // Force reflow
+
+            const randomDuration = (Math.random() * 2) + 1;
+            cactus.style.animationDuration = `${randomDuration}s`;
+
+            cactus.classList.add("run-animation");
+        };
+
+        // Add event listener to randomize animation duration when animation ends
+        cactus.addEventListener('animationend', randomizeCactusAnimation);
+
+
+        let isAlive = setInterval(function () {
             let dinoTop = parseInt(window.getComputedStyle(dino).getPropertyValue("top"));
             let cactusLeft = parseInt(window.getComputedStyle(cactus).getPropertyValue("left"));
 
@@ -44,7 +59,7 @@ const Game1 = ({onGameOver}) => {
 
             // Stop checking once the game is over, and pass the length of the game in seconds to the parent component
             if (gameOver) {
-                onGameOver(gameLength/1000); 
+                onGameOver(gameLength / 1000);
                 clearInterval(isAlive);
             }
         }, 10);
@@ -53,6 +68,7 @@ const Game1 = ({onGameOver}) => {
         return () => {
             clearInterval(isAlive);
             document.removeEventListener("keydown", handleKeyDown);
+            cactus.removeEventListener('animationend', randomizeCactusAnimation);
         };
 
     }, [gameOver]);
@@ -62,12 +78,15 @@ const Game1 = ({onGameOver}) => {
         setGameOver(false);
 
         const cactus = document.getElementById("cactus");
-         // Stop the current animation
+        // Stop the current animation
         cactus.style.animation = "none";
         // This forces reflow without triggering lint warnings
-        cactus.getBoundingClientRect();  
+        cactus.getBoundingClientRect();
+        // Generate a random duration
+        const randomDuration = (Math.random() * 2) + 1;
         //restart the animation
-        cactus.style.animation = 'moveCactus 1.5s infinite linear'; 
+        cactus.style.animation = `moveCactus ${randomDuration}s linear infinite`;
+
         setStartTime(Date.now());
     }
 
@@ -76,7 +95,7 @@ const Game1 = ({onGameOver}) => {
     return (
         <div className="game-container">
             <div id="dino"></div>
-            <div id="cactus"></div>
+            <div id="cactus" class="run-animation"></div>
             {gameOver && (
                 <button className="game-over" onClick={restartGame}>
                     Game Over. Play again.
